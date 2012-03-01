@@ -1,0 +1,51 @@
+# This file is a general .ucf for Basys2 rev C board
+# To use it in a project:
+# - remove or comment the lines corresponding to unused pins
+# - rename the used signals according to the project
+
+# clock pin for Basys2 Board
+NET "mclk_in" LOC = "B8"; # Bank = 0, Signal name = MCLK
+NET "mclk_in" CLOCK_DEDICATED_ROUTE = FALSE;
+
+# Pin assignment for EppCtl
+# Connected to Basys2 onBoard USB controller
+NET "astb" LOC = "F2"; # Bank = 3
+NET "dstb" LOC = "F1"; # Bank = 3
+NET "pwr"       LOC = "C2"; # Bank = 3
+
+NET "pwait" LOC = "D2"; # Bank = 3
+
+
+NET "pdb<0>" LOC = "N2"; # Bank = 2
+NET "pdb<1>" LOC = "M2"; # Bank = 2
+NET "pdb<2>" LOC = "M1"; # Bank = 3
+NET "pdb<3>" LOC = "L1"; # Bank = 3
+NET "pdb<4>" LOC = "L2"; # Bank = 3
+NET "pdb<5>" LOC = "H2"; # Bank = 3
+NET "pdb<6>" LOC = "H1"; # Bank = 3
+NET "pdb<7>" LOC = "H3"; # Bank = 3
+
+# Pin assignment for LEDs
+NET "rgLed<7>" LOC = "G1" ; # Bank = 3, Signal name = LD7
+NET "rgLed<6>" LOC = "P4" ; # Bank = 2, Signal name = LD6
+NET "rgLed<5>" LOC = "N4" ;  # Bank = 2, Signal name = LD5
+NET "rgLed<4>" LOC = "N5" ;  # Bank = 2, Signal name = LD4
+NET "rgLed<3>" LOC = "P6" ; # Bank = 2, Signal name = LD3
+NET "rgLed<2>" LOC = "P7" ; # Bank = 3, Signal name = LD2
+NET "rgLed<1>" LOC = "M11" ; # Bank = 2, Signal name = LD1
+NET "rgLed<0>" LOC = "M5" ;  # Bank = 2, Signal name = LD0
+
+# Pin assignment for SWs
+NET "rgSwt<7>" LOC = "N3";  # Bank = 2, Signal name = SW7
+NET "rgSwt<6>" LOC = "E2";  # Bank = 3, Signal name = SW6
+NET "rgSwt<5>" LOC = "F3";  # Bank = 3, Signal name = SW5
+NET "rgSwt<4>" LOC = "G3";  # Bank = 3, Signal name = SW4
+NET "rgSwt<3>" LOC = "B4";  # Bank = 3, Signal name = SW3
+NET "rgSwt<2>" LOC = "K3";  # Bank = 3, Signal name = SW2
+NET "rgSwt<1>" LOC = "L3";  # Bank = 3, Signal name = SW1
+NET "rgSwt<0>" LOC = "P11";  # Bank = 2, Signal name = SW0
+
+NET "rgBtn<3>" LOC = "A7";  # Bank = 1, Signal name = BTN3
+NET "rgBtn<2>" LOC = "M4";  # Bank = 0, Signal name = BTN2
+NET "rgBtn<1>" LOC = "C11"; # Bank = 2, Signal name = BTN1
+NET "rgBtn<0>" LOC = "G12"; # Bank = 0, Signal name = BTN0

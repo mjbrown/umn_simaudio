@@ -26,50 +26,22 @@
 //
 //////////////////////////////////////////////////////////////////////////////////
 module main(
-    //input  XTAL,
-    // output ADC_CLK,
-   // Connected to Basys2 onBoard 7seg display
-   output [7:0] seg,
-   output [3:0] an,
- 
-   // LEDs
-   output [7:0] led,
-   
-   // Switches
-   input [7:0] sw,
-   
-   // Buttons
-   input [3:0] btn,
-   
-   // PS2
-   input PS2C,
-   input PS2D,
-   
-   // VGA
-   output HSYNC,
-   output VSYNC,
-   output OutRed,
-   output OutGreen,
-   output OutBlue,
-   
-   //PORTS
-   output [3:0] JA,
-   output [3:0] JB,
-   output [3:0] JC,
-   output [3:0] JD,
-   
-   //DPIMREF / EppCtl
-   //Connected to Basys2 onBoard USB controller
-   inout  [7:0] EppDB,
-   input  EppAstb,
-   input  EppDstb,
-   input  EppWR,
-   output EppWait,
-   // output [7:0] rgLed,
-   // input  [7:0] rgSwt,
-   // input  [4:0] rgBtn,
-   
-   input  mclk
+   input  mclk_in ,
+   input  astb ,
+   input  dstb ,
+   input  pwr  ,
+   inout  [7:0] pdb  ,
+   output [7:0] rgLed,
+   input  [7:0] rgSwt,
+   input  [3:0] rgBtn,   
+   output  pwait,
+   output I2S_bclk_out,
+   output I2S_wclk_out,
+   output adc_clk_out,
+   input  I2S_din0,
+   input  I2S_din1,
+   input  I2S_din2,
+   input  I2S_din3
 );
 
 wire adc_clk;
@@ -79,45 +51,75 @@ wire dpi_btn;
 wire dpi_ldg;
 wire dpi_led;
 wire mclk_bufg;
-// reg  [3:0] an_reg = 4b'1111;
+wire i2s_bclk;
+wire i2s_wclk;
+wire ja0;
+wire ja1;
+wire channel0;
+wire channel1;
 
-assign adc_clk_rst = 0;
-assign JA = adc_clk & 3'b000;
-assign JB = 4'b0000;
-assign JC = 4'b0000;
-assign JD = 4'b0000;
-assign dpi_btn = 0;
+assign adc_clk_rst  = 0;
+assign adc_clk_out  = adc_clk;
+assign I2S_bclk_out = i2s_bclk;
+assign I2S_wclk_out = i2s_wclk;
 
-   // IBUFG: Single-ended global clock input buffer
-   // IBUFG #(
-      // .IBUF_DELAY_VALUE("0"), // Specify the amount of added input delay for 
-                                // the buffer: "0"-"12" (Spartan-3E)
-      // .IOSTANDARD("DEFAULT")  // Specify the input I/O standard
-   // ) IBUFG_inst (
-      // .O(mclk_bufg), // Clock buffer output
-      // .I(mclk)  // Clock buffer input (connect directly to top-level port)
-   // );
-					
 dpimref dpi(
- // .mclk  (mclk_bufg),
  .mclk  (mclk),
- .pdb   (EppDB),
- .astb  (EppAstb),
- .dstb  (EppDstb),
- .pwr   (EppWR),
- .pwait (EppWait),
- .rgled (led),
- .rgswt (sw),
- .rgbtn (btn),
+ .pdb   (pdb),
+ .astb  (astb),
+ .dstb  (dstb),
+ .pwr   (pwr),
+ .pwait (pwait),
+ .rgled (rgLed),
+ .rgswt (rgSwt),
+ .rgbtn (rgBtn),
  .btn   (dpi_btn),
  .ldg   (dpi_ldg),
  .led   (dpi_led)
 );
 
 adc_clock_gen adc_clk_gen_inst (
-     .U1_CLKIN_IN(mclk),
+     .U1_CLKIN_IN(mclk_in),
+	 .U1_CLKIN_IBUFG_OUT (mclk),
      .U1_RST_IN(adc_clk_rst),
      .U2_CLKFX_OUT(adc_clk),
 	  .U2_LOCKED_OUT(adc_locked)
 );
+
+I2S_Core i2s_core_inst (
+	.adc_clk(adc_clk),
+	.i2s_bclk(i2s_bclk),
+	.i2s_wclk(i2s_wclk)
+);
+
+I2S_Data i2s_data_0 (
+	.i2s_bclk(i2s_bclk),
+	.i2s_wclk(i2s_wclk),
+	.din(I2S_din0),
+	.dataL(channel0),
+	.dataR(channel1)
+);
+I2S_Data i2s_data_1(
+	.i2s_bclk(i2s_bclk),
+	.i2s_wclk(i2s_wclk),
+	.din(I2S_din1),
+	.dataL(channel2),
+	.dataR(channel3)
+);
+I2S_Data i2s_data_2 (
+	.i2s_bclk(i2s_bclk),
+	.i2s_wclk(i2s_wclk),
+	.din(I2S_din2),
+	.dataL(channel4),
+	.dataR(channel5)
+);
+I2S_Data i2s_data_3 (
+	.i2s_bclk(i2s_bclk),
+	.i2s_wclk(i2s_wclk),
+	.din(I2S_din3),
+	.dataL(channel6),
+	.dataR(channel7)
+);
+
+
 endmodule

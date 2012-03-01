@@ -31,7 +31,7 @@ module tc_main;
 	
 	// Instantiate the Unit Under Test (UUT)
 	main uut (
-		.mclk(LTC6905_out)
+		.mclk_in(LTC6905_out)
 	);
 
 	initial begin

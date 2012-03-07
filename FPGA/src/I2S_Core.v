@@ -23,13 +23,13 @@ module I2S_Core(
 	output i2s_bclk,
 	output i2s_wclk
 );
-parameter clk_div     = 128;
-parameter clk_cnt_W   = 6;
+parameter clk_cnt_W   = 8;
+parameter [clk_cnt_W: 0] clk_div     = 128;
 parameter sample_size = 24;
 parameter bit_cnt_W   = 5;
 
-reg [clk_cnt_W:0] clk_cnt = 0;
-reg [bit_cnt_W:0] bit_cnt = 0;
+reg [clk_cnt_W - 1:0] clk_cnt = 0;
+reg [bit_cnt_W - 1:0] bit_cnt = 0;
 
 reg bclk = 0;
 reg wclk = 0;
@@ -41,7 +41,8 @@ begin
 		bclk <= !bclk;
 		clk_cnt <= 0;
 		//wclk changes on negative edge of bclk
-		if (bclk == 0) begin
+		// bclk == 1 when starting negedge
+		if (bclk == 1) begin
 			bit_cnt <= bit_cnt + 1;
 			if (bit_cnt == sample_size - 1) begin
 				wclk <= !wclk;

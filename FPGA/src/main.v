@@ -41,8 +41,11 @@ module main(
    input  I2S_din0,
    input  I2S_din1,
    input  I2S_din2,
-   input  I2S_din3
+   input  I2S_din3,
+   output dout
 );
+
+reg lat_i2s_wclk;
 
 wire adc_clk;
 wire adc_clk_rst;
@@ -57,6 +60,16 @@ wire ja0;
 wire ja1;
 wire channel0;
 wire channel1;
+
+wire fir_rdy;
+wire fir_rfd;
+wire fir_chan_in;
+wire fir_chan_out;
+wire fir_din;
+wire fir_dout;
+wire i2s_dataL_rdy;
+wire i2s_dataR_rdy;
+
 
 assign adc_clk_rst  = 0;
 assign adc_clk_out  = adc_clk;
@@ -120,6 +133,33 @@ I2S_Data i2s_data_3 (
 	.dataL(channel6),
 	.dataR(channel7)
 );
+
+FIR FIR_inst (
+	.clk(mclk_bufg), // input clk
+	.rfd(fir_rfd), // output rfd
+	.rdy(fir_rdy), // output rdy
+	.chan_in(fir_chan_in), // output [2 : 0] chan_in
+	.chan_out(fir_chan_out), // output [2 : 0] chan_out
+	.din(fir_din), // input [23 : 0] din
+	.dout(fir_dout)
+); // output [44 : 0] dout
+
+
+// I2S MUX 
+always @(posedge mclk_bufg)
+begin
+	if (lat_i2s_wclk != i2s_wclk) begin // data ready
+		if (lat_i2s_wclk == 1) begin
+			
+		end else begin
+		
+		end
+	end
+end
+
+always @(posedge i2s_bclk) begin
+	lat_i2s_wclk <= i2s_wclk;
+end
 
 
 endmodule

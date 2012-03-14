@@ -32,9 +32,9 @@ module tc_main;
 	reg dout;
 	
 	wire adc_clk;
-	reg wclk;
+	// wire wclk;
+	// wire bclk;
 	reg lat_wclk;
-	reg bclk;
 	
 	reg [_WIDTH-1:0] squarewave;
 	reg [_WIDTH-1:0] impulse;
@@ -43,9 +43,10 @@ module tc_main;
 	
 	// Instantiate the Unit Under Test (UUT)
 	main uut (
-		.mclk_in(LTC6905_out),
-		.I2S_wclk_out(wclk),
-		.I2S_bclk_out(bclk),
+		.MCLK_IN(LTC6905_out),
+		.ADC_CLK_OUT(adc_clk),
+		.I2S_WCLK_OUT(wclk),
+		.I2S_BCLK_OUT(bclk),
 		.I2S_din0(din0),
 		.dout(dout)
 	);
@@ -101,14 +102,11 @@ module tc_main;
 	
 	always @(negedge bclk)
 	begin
-		if (lat_wclk == 1)
-		begin
+		if (lat_wclk == 1) begin
 			din0 <= squarewave[0];
 			squarewave <= {~squarewave[0],squarewave[_WIDTH-1:1]};
 		end else begin
-			din0 <= sawtooth[0];
-			sawtooth <= {sawtoothN[0],sawtooth[_WIDTH-1:1]};
-			sawtoothN <= {sawtooth[0],sawtoothN[_WIDTH-1:1]};
+			din0 <= 0;
 		end
 	end
 	

@@ -1,0 +1,55 @@
+# This file is a general .ucf for Basys rev E board
+# To use it in a project:
+# - remove or comment the lines corresponding to unused pins
+# - rename the used signals according to the project
+
+
+# clock pin for Basys rev E Board                                                                                                                        
+ NET "MCLK_IN"      LOC = "P54"; # Bank = 2,  Pin name = IO_L5N_2/D3/GCLK31, Sch name = CLK1
+ NET "MCLK_IN" CLOCK_DEDICATED_ROUTE = FALSE;
+#NET "SOCK_CLK"      LOC = "P53"; # Bank = 2,  Pin name = IO_L5P_2/D4/GCLK30, Sch name = CLK2
+                                                                                                                        
+# onBoard USB controller                                                                                                                        
+# NET "FLAGA"   LOC = "P125"; # Bank = 0, Pin name = IO_L5P_0/GCLK14,    Sch name = U-FLGA
+# NET "FLAGB"   LOC = "P124"; # Bank = 0, Pin name = IO/VREF_0,          Sch name = U-FLGB
+# #NET "FLAGC"   LOC = "P123"; # Bank = 0, Pin name = IO_L4N_0/GCLK13,    Sch name = U-FLGC
+# NET "SLRD"   LOC = "P105"; # Bank = 1, Pin name = IO_L10P_1/LDC1,     Sch name = U-SLRD
+# NET "USBDB<0>"  LOC = "P142"; # Bank = 0, Pin name = IO_L10P_0,          Sch name = U-D0
+# NET "USBDB<1>"  LOC = "P140"; # Bank = 0, Pin name = IO_L9N_0,           Sch name = U-D1
+# NET "USBDB<2>"  LOC = "P139"; # Bank = 0, Pin name = IO_L9P_0,           Sch name = U-D2
+# NET "USBDB<3>"  LOC = "P135"; # Bank = 0, Pin name = IO_L8N_0/VREF_0,    Sch name = U-D3
+# NET "USBDB<4>"  LOC = "P134"; # Bank = 0, Pin name = IO_L8P_0,           Sch name = U-D4
+# NET "USBDB<5>"  LOC = "P132"; # Bank = 0, Pin name = IO,                 Sch name = U-D5
+# NET "USBDB<6>"  LOC = "P131"; # Bank = 0, Pin name = IO_L7N_0/GCLK19,    Sch name = U-D6
+# NET "USBDB<7>"  LOC = "P130"; # Bank = 0, Pin name = IO_L7P_0/GCLK18,    Sch name = U-D7
+#                                                                                                                        
+# #NET "IFCLK"    LOC = "P126"; # Bank = 0, Pin name = IO_L5N_0/GCLK15,    Sch name = U-IFCLK
+#                                                                                                                        
+# NET "SLOE"     LOC = "P117"; # Bank = 0, Pin name = IO_L2N_0,           Sch name = U-SLOE
+# NET "SLWR"     LOC = "P104"; # Bank = 1, Pin name = IO_L9N_1/LDC0,      Sch name = U-SLWR
+# NET "PKTEND" LOC = "P112"; # Bank = 0, Pin name = IO_L1P_0,           Sch name = U-PKTEND
+#                                                                                                                        
+# NET "STMEN"    LOC = "P106"; # Bank = 1, Pin name = IO_L10N_1/LDC2,     Sch name = U-SLCS
+ #NET "UsbMode"   LOC = "P122"; # Bank = 0, Pin name = IO_L4P_0/GCLK12,    Sch name = U-INT0#
+                                                                                                                        
+# NET "FIFOADR<0>" LOC = "P116"; # Bank = 0, Pin name = IO_L2P_0,           Sch name = U-FAD0
+# NET "FIFOADR<1>" LOC = "P113"; # Bank = 0, Pin name = IO_L1N_0,           Sch name = U-FAD1
+ 
+ #  Leds                                                                                                                        
+# NET "LEDATA<0>"    LOC = "P15"; # Bank = 3, Pin name = IO_L4N_3/GCLK21      Sch name = LD0
+# NET "LEDATA<1>"    LOC = "P14"; # Bank = 3, Pin name = IO_L4P_3/GCLK20      Sch name = LD1
+# NET "LEDATA<2>"    LOC = "P8";  # Bank = 3, Pin name = IO_L3N_3,            Sch name = LD2
+# NET "LEDATA<3>"    LOC = "P7";  # Bank = 3, Pin name = IO_L3P_3,            Sch name = LD3
+# NET "LEDATA<4>"    LOC = "P5";  # Bank = 3, Pin name = IO_L2N_3/VREF_3,     Sch name = LD4
+# NET "LEDATA<5>"    LOC = "P4";  # Bank = 3, Pin name = IO_L2P_3,            Sch name = LD5
+# NET "LEDATA<6>"    LOC = "P3";  # Bank = 3, Pin name = IO_L1N_3,            Sch name = LD6
+# NET "LEDATA<7>"    LOC = "P2";  # Bank = 3, Pin name = IO_L1P_3,            Sch name = LD7
+ 
+ #i/o
+ PIN "adc_clk_gen_inst/DCM_SP_INST1.CLKIN" CLOCK_DEDICATED_ROUTE = FALSE;
+# NET I2S_DATA_OUT  LOC = "P81";
+ NET "I2S_BCLK_OUT"  LOC = "P91";
+ NET "I2S_WCLK_OUT"  LOC = "P82";
+ NET "ADC_CLK_OUT"   LOC = "P92";
+# NET "MCLK_OUT"      LOC = "P87";
+# NET "HIGH_OUT"      LOC = "P93";

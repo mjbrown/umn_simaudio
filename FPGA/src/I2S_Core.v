@@ -24,7 +24,8 @@ module I2S_Core(
 	output i2s_wclk
 );
 parameter clk_cnt_W   = 8;
-parameter [clk_cnt_W: 0] clk_div     = 128;
+parameter bclk_period = 4;
+parameter clk_div = bclk_period >> 1;// bclk = 2*adc/clk_div
 parameter sample_size = 24;
 parameter bit_cnt_W   = 5;
 
@@ -33,11 +34,17 @@ reg [bit_cnt_W - 1:0] bit_cnt = 0;
 
 reg bclk = 0;
 reg wclk = 0;
+wire s1_bflip;
+wire s2_bflip;
+
+assign s1_bflip = (clk_cnt == clk_div - 1);
+assign s2_bflip = (clk_cnt == clk_div);
+assign s0_bflip = ((s2_bflip == 1) || ((bclk == 1) && (s1_bflip == 1) && (bit_cnt >= 8)));
 
 always @(posedge adc_clk)
 begin
 	clk_cnt <= clk_cnt + 1;
-	if (clk_cnt == clk_div - 1) begin
+	if (s0_bflip == 1) begin
 		bclk <= !bclk;
 		clk_cnt <= 0;
 		//wclk changes on negative edge of bclk

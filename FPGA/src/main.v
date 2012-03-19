@@ -34,14 +34,12 @@ module main(
 //   input  [7:0] rgSwt,
 //   input  [3:0] rgBtn,   
 //   output  pwait,
-//   output reg I2S_BCLK_OUT,
-//   output reg I2S_WCLK_OUT,
-//   output reg ADC_CLK_OUT,
-//	output reg MCLK_OUT,
-//	output reg HIGH_OUT,   
-	output I2S_BCLK_OUT,
-   output I2S_WCLK_OUT,
-   output ADC_CLK_OUT,
+	input  I2S_DATA0_IN, //JA1
+	output I2S_BCLK_OUT, //JA2
+   output I2S_WCLK_OUT, //JA3
+   output ADC_CLK_OUT,  //JA4
+	
+	input  I2S_DATA1_IN, //JB1
 	// output MCLK_OUT,
    input  I2S_din0,
    input  I2S_din1,
@@ -50,9 +48,9 @@ module main(
    output dout,
 	
 	output LEDATA,
-	input  USBCLK_IN,
 	input  MCLK_IN,
 	
+	input  USBCLK_IN,
 	input  STMEN,
 	input  FLAGA,
 	input  FLAGB,
@@ -80,8 +78,11 @@ wire dpi_led;
 wire mclk_bufg;
 wire i2s_bclk;
 wire i2s_wclk;
-// wire channel0L, channel1L, channel2L, channel3L;
-// wire channel0R, channel1R, channel2R, channel3R;
+
+reg  [7:0] data_id;
+reg  [_WIDTH-1:0] audio_data;
+wire [_WIDTH-1:0] channel0L, channel1L, channel2L, channel3L;
+wire [_WIDTH-1:0] channel0R, channel1R, channel2R, channel3R;
 
 // wire fir_rdy;
 // wire fir_rfd;
@@ -100,6 +101,10 @@ assign I2S_BCLK_OUT = i2s_bclk;
 assign I2S_WCLK_OUT = i2s_wclk;
 // assign MCLK_OUT = mclk_bufg;
 
+initial begin
+	data_id = 0;
+end
+
 // dpimref dpi(
  // .mclk  (mclk),
  // .pdb   (pdb),
@@ -114,6 +119,21 @@ assign I2S_WCLK_OUT = i2s_wclk;
  // .ldg   (dpi_ldg),
  // .led   (dpi_led)
 // );
+
+StreamIOvhd streamIO (
+	.IFCLK(USBCLK_IN),  
+	.STMEN(STMEN),  
+	.FLAGA(FLAGA),
+	.FLAGB(FLAGB),  
+	.SLRD(SLRD),   
+	.SLWR(SLWR),   
+	.SLOE(SLOE),   
+	.PKTEND(PKTEND), 
+	.FIFOADR(FIFOADR),
+	.USBDB(USBDB),  
+	.DATAID(data_id), 
+	.AUDIO(audio_data)  
+);
 
 adc_clock_gen adc_clk_gen_inst (
      .U1_CLKIN_IN(MCLK_IN),
@@ -134,20 +154,20 @@ I2S_Core i2s_core_inst (
 	.i2s_wclk(i2s_wclk)
 );
 
-// I2S_Data i2s_data_0 (
-	// .i2s_bclk(i2s_bclk),
-	// .i2s_wclk(i2s_wclk),
-	// .din(I2S_din0),
-	// .dataL(channel0L),
-	// .dataR(channel0R)
-// );
-// I2S_Data i2s_data_1(
-	// .i2s_bclk(i2s_bclk),
-	// .i2s_wclk(i2s_wclk),
-	// .din(I2S_din1),
-	// .dataL(channel1L),
-	// .dataR(channel1R)
-// );
+ I2S_Data i2s_data_0 (
+	 .i2s_bclk(i2s_bclk),
+	 .i2s_wclk(i2s_wclk),
+	 .din(I2S_DATA0_IN),
+	 .dataL(channel0L),
+	 .dataR(channel0R)
+ );
+ I2S_Data i2s_data_1(
+	 .i2s_bclk(i2s_bclk),
+	 .i2s_wclk(i2s_wclk),
+	 .din(I2S_DATA1_IN),
+	 .dataL(channel1L),
+	 .dataR(channel1R)
+ );
 // I2S_Data i2s_data_2 (
 	// .i2s_bclk(i2s_bclk),
 	// .i2s_wclk(i2s_wclk),
@@ -175,8 +195,9 @@ I2S_Core i2s_core_inst (
 
 
 // I2S MUX
-// assign i2s_dataL_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 1;
-// assign i2s_dataR_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 0;
+assign i2s_dataL_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 1;
+assign i2s_dataR_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 0;
+
 // always @(posedge mclk_bufg)
 // begin
 	// if (data_count == 0) begin
@@ -208,6 +229,29 @@ I2S_Core i2s_core_inst (
 
 always @(posedge i2s_bclk) begin
 	lat_i2s_wclk <= i2s_wclk;
+end
+
+//reg drdy;
+//wire drdy_pulse = i2s_dataL_rdy ^ drdy;
+//wire incrID = drdy_pulse == 1 && i2s_dataL_rdy == 1;
+//always @(posedge i2s_bclk) begin
+//	drdy <= i2s_dataL_rdy;
+//	if (incrID == 1) begin
+//		
+//	end
+//	if (i2s_dataL_rdy == 1) begin
+//		
+//	end
+//end
+
+reg [1:0] i2s_dataL_rdy_lat;
+always @(posedge USBCLK_IN) begin
+	i2s_dataL_rdy_lat[0] <= i2s_dataL_rdy;
+	i2s_dataL_rdy_lat[1] <= i2s_dataL_rdy_lat[0];
+	if (i2s_dataL_rdy_lat[1] ^ i2s_dataL_rdy_lat[0]) begin
+		data_id <= data_id + 1;
+		audio_data <= channel1L;
+	end
 end
 
 

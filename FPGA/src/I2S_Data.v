@@ -47,6 +47,7 @@ module I2S_Data(
 	reg [DETECT_W:0] detectCntL, detectCntR;
 	reg wclk_lat;
 	reg detectEn;
+	reg [4:0] bitCnt;
 	
 	initial
 	begin
@@ -65,15 +66,22 @@ module I2S_Data(
 	begin
 		wclk_lat  <= i2s_wclk;
 		detectEn  <= i2s_wclk ^ wclk_lat;
+		if (i2s_wclk ^ wclk_lat) begin
+			bitCnt <= 0;
+		end else begin
+			bitCnt <= bitCnt + 1;
+		end
 	end
 	
 	// Latch data at positive edge of bit clock
 	always @(posedge i2s_bclk)
 	begin
-		if (wclk_lat == 0) begin
-			dataL <= {dataL[DATA_W-2:0], din};
-		end else begin
-			dataR <= {dataR[DATA_W-2:0], din};
+		if (bitCnt < DATA_W) begin
+			if (wclk_lat == 0) begin
+				dataL <= {dataL[DATA_W-2:0], din};
+			end else begin
+				dataR <= {dataR[DATA_W-2:0], din};
+			end
 		end
 	end
 	

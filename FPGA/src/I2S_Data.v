@@ -33,7 +33,7 @@ module I2S_Data(
 	detectR
 );
 	parameter DATA_W = 24;
-	parameter [DATA_W - 1:0] DETECT_SENSITIVITY = 15;
+	parameter [DATA_W - 1:0] DETECT_SENSITIVITY =  1024;
 	parameter [DATA_W - 1:0] DETECT_SENSITIVITY_NEG = -DETECT_SENSITIVITY;
 	parameter DETECT_W = 4;
 	parameter [DETECT_W-1:0] DETECT_MAX = (1 << DETECT_W) - 1;

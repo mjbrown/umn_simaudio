@@ -38,7 +38,7 @@ end Memory;
 
 architecture Behavioral of Memory is
 
-constant MEMSIZE  : integer := 512;
+constant MEMSIZE  : integer := 1024;
 
 type MEMType is array (0 to MEMSIZE - 1) of std_logic_vector(7 downto 0);
 signal MEMData : MEMType;
@@ -73,15 +73,16 @@ begin
 				s_detect_data <= '0';
 			end if;
 			if (s_audio_load = 0) then
-				s_lat_audio <= DATAID & AUDIO;
+				s_lat_audio <=  AUDIO & DATAID;
 			end if;
 			
          -- Download address counter incremented while write signal is active.
-         if RST = '0' then
-            adrDownload <= 0;
+         -- if RST = '0' then
+            -- adrDownload <= 0;
 --         elsif DOWNWR = '1' then
 --            adrDownload <= adrDownload + 1;
-			elsif s_detect_data = '1' or s_audio_load > 0 then
+			-- elsif s_detect_data = '1' or s_audio_load > 0 then
+			if s_detect_data = '1' or s_audio_load > 0 then
 				if (s_audio_load <= 3) then
 					MEMData(adrDownload) <= s_lat_audio(31 downto 24);
 					s_lat_audio <= s_lat_audio(23 downto 0) & x"00";

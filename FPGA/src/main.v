@@ -47,7 +47,7 @@ module main(
    input  I2S_din3,
    output dout,
 	
-	output LEDATA,
+	output [7:0] LEDATA,
 	input  MCLK_IN,
 	
 	input  USBCLK_IN,
@@ -119,6 +119,11 @@ end
  // .ldg   (dpi_ldg),
  // .led   (dpi_led)
 // );
+wire detect0L;
+wire detect0R;
+wire detect1L;
+wire detect1R;
+assign LEDATA = {detect0L, detect0R, detect1L, detect1R};
 
 StreamIOvhd streamIO (
 	.IFCLK(USBCLK_IN),  
@@ -159,14 +164,18 @@ I2S_Core i2s_core_inst (
 	 .i2s_wclk(i2s_wclk),
 	 .din(I2S_DATA0_IN),
 	 .dataL(channel0L),
-	 .dataR(channel0R)
+	 .dataR(channel0R),
+	 .detectL(detect0L),
+	 .detectR(detect0R)
  );
  I2S_Data i2s_data_1(
 	 .i2s_bclk(i2s_bclk),
 	 .i2s_wclk(i2s_wclk),
 	 .din(I2S_DATA1_IN),
 	 .dataL(channel1L),
-	 .dataR(channel1R)
+	 .dataR(channel1R),
+	 .detectL(detect1L),
+	 .detectR(detect1R)
  );
 // I2S_Data i2s_data_2 (
 	// .i2s_bclk(i2s_bclk),

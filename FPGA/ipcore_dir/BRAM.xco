@@ -1,7 +1,7 @@
 ##############################################################
 #
 # Xilinx Core Generator version 13.4
-# Date: Tue Mar 06 22:30:52 2012
+# Date: Tue Mar 20 11:02:40 2012
 #
 ##############################################################
 #
@@ -22,13 +22,13 @@ SET asysymbol = true
 SET busformat = BusFormatAngleBracketNotRipped
 SET createndf = false
 SET designentry = Verilog
-SET device = xc3s250e
+SET device = xc3s100e
 SET devicefamily = spartan3e
 SET flowvendor = Other
 SET formalverification = false
 SET foundationsym = false
 SET implementationfiletype = Ngc
-SET package = cp132
+SET package = tq144
 SET removerpms = false
 SET simulationfiles = Behavioral
 SET speedgrade = -4
@@ -73,7 +73,7 @@ CSET port_b_clock=100
 CSET port_b_enable_rate=100
 CSET port_b_write_rate=0
 CSET primitive=8kx2
-CSET read_width_a=16
+CSET read_width_a=32
 CSET read_width_b=8
 CSET register_porta_input_of_softecc=false
 CSET register_porta_output_of_memory_core=false
@@ -95,12 +95,12 @@ CSET use_regcea_pin=false
 CSET use_regceb_pin=false
 CSET use_rsta_pin=false
 CSET use_rstb_pin=false
-CSET write_depth_a=1024
-CSET write_width_a=16
+CSET write_depth_a=128
+CSET write_width_a=32
 CSET write_width_b=8
 # END Parameters
 # BEGIN Extra information
 MISC pkg_timestamp=2011-10-21T13:54:23Z
 # END Extra information
 GENERATE
-# CRC: cc68e7c8
+# CRC:  2108ee9

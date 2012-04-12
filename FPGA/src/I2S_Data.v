@@ -6,8 +6,8 @@
 // Create Date:    08:34:42 02/27/2012 
 // Design Name: 
 // Module Name:    I2S_Data
-// Project Name: 
-// Target Devices: 
+// Project Name:   UMN SimAudio
+// Target Devices: Spartan3E
 // Tool versions: 
 // Description: 
 //   wclk low  = Right channel holds
@@ -33,8 +33,8 @@ module I2S_Data(
 	detectR
 );
 	parameter DATA_W = 24;
-	parameter [DATA_W - 1:0] DETECT_SENSITIVITY =  1024;
-	parameter [DATA_W - 1:0] DETECT_SENSITIVITY_NEG = -DETECT_SENSITIVITY;
+	parameter [DATA_W - 1:0] DETECT_THRESHOLD =  2500;
+	parameter [DATA_W - 1:0] DETECT_THRESHOLD_NEG = -DETECT_THRESHOLD;
 	parameter DETECT_W = 4;
 	parameter [DETECT_W-1:0] DETECT_MAX = (1 << DETECT_W) - 1;
 	
@@ -92,7 +92,7 @@ module I2S_Data(
 		begin
 			if (i2s_wclk == 1)
 			begin // Detect left channel signal
-				if ( (dataL >= DETECT_SENSITIVITY) && (dataL <= DETECT_SENSITIVITY_NEG)) begin
+				if ( (dataL >= DETECT_THRESHOLD) && (dataL <= DETECT_THRESHOLD_NEG)) begin
 					// Signal detected, reset counter
 					detectCntL <= 0;
 					detectL <= 1;
@@ -105,7 +105,7 @@ module I2S_Data(
 					detectL <= 1;
 				end
 			end else begin // Detect right channel signal
-				if ( (dataR >= DETECT_SENSITIVITY) && (dataR <= DETECT_SENSITIVITY_NEG)) begin
+				if ( (dataR >= DETECT_THRESHOLD) && (dataR <= DETECT_THRESHOLD_NEG)) begin
 					// Signal detected
 					detectCntR <= 0;
 					detectR <= 1;
@@ -120,8 +120,7 @@ module I2S_Data(
 			end
 		end
 	end
-	
-	
-	// assign drh = (dataR >= DETECT_SENSITIVITY);
-	// assign drl = (dataR <= DETECT_SENSITIVITY_NEG);
+
+	// assign drh = (dataR >= DETECT_THRESHOLD);
+	// assign drl = (dataR <= DETECT_THRESHOLD_NEG);
 endmodule

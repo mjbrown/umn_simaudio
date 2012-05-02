@@ -52,6 +52,34 @@ NET "USBDB<7>"  LOC = "P130"; # Bank = 0, Pin name = IO_L7P_0/GCLK18,    Sch nam
  NET "I2S_BCLK_OUT"  LOC = "P91";
  NET "I2S_WCLK_OUT"  LOC = "P82";
  NET "ADC_CLK_OUT"   LOC = "P92";
+ NET "I2S_BCLK_OUT"  FAST;
+ NET "I2S_WCLK_OUT"  FAST;
+ NET "ADC_CLK_OUT"   FAST;
+ # INST “instance_name” DRIVE={2|4|6|8|12|16|24};
+ NET "ADC_CLK_OUT"  DRIVE=24;
+ NET "I2S_WCLK_OUT" DRIVE=24;
+ NET "I2S_BCLK_OUT" DRIVE=24;
  
  NET "I2S_DATA1_IN"  LOC = "P87";
-# NET "HIGH_OUT"      LOC = "P93";
+ # NET "I2S_DATA2_IN"  LOC = "P93";
+ # NET "I2S_DATA3_IN"  LOC = "P88";
+ # NET "I2S_DATA4_IN"  LOC = "P94";
+ # NET "I2S_DATA5_IN"  LOC = "P77";
+ 
+# 6 pin connectors (use for reference)                                                                                                                       
+ # NET "JA<0>" LOC = "P81"; # Bank = 1, Pin name = IO_L3P_1/A12,            Sch name = JA-1
+ # NET "JA<1>" LOC = "P91"; # Bank = 1, Pin name = IO_L6P_1/A6/GCLK8/IRDY1, Sch name = JA-2
+ # NET "JA<2>" LOC = "P82"; # Bank = 1, Pin name = IO_L3N_1/A11,            Sch name = JA-3
+ # NET "JA<3>" LOC = "P92"; # Bank = 1, Pin name = IO_L6N_1/A5/GCLK9,       Sch name = JA-4
+ # NET "JB<0>" LOC = "P87"; # Bank = 1, Pin name = IO_L5P_1/A8/GCLK6,       Sch name = JB-1
+ # NET "JB<1>" LOC = "P93"; # Bank = 1, Pin name = IO_L7P_1/A4/GCLK10,      Sch name = JB-2
+ # NET "JB<2>" LOC = "P88"; # Bank = 1, Pin name = IO_L5N_1/A7/GCLK7/TRDY1, Sch name = JB-3
+ # NET "JB<3>" LOC = "P94"; # Bank = 1, Pin name = IO_L7N_1/A3/GCLK11,      Sch name = JB-4
+ # NET "JC<0>" LOC = "P77"; # Bank = 1, Pin name = IO_L2N_1/A13,            Sch name = JC-1
+ # NET "JC<1>" LOC = "P86"; # Bank = 1, Pin name = IO_L4N_1/A9/GCLK5,       Sch name = JC-2
+ # NET "JC<2>" LOC = "P76"; # Bank = 1, Pin name = IO_L2P_1/A14,            Sch name = JC-3
+ # NET "JC<3>" LOC = "P85"; # Bank = 1, Pin name = IO_L4P_1/A10/GCLK4,      Sch name = JC-4
+ # NET "JD<0>" LOC = "P75"; # Bank = 1, Pin name = IO_L1N_1/A15,            Sch name = JD-1
+ # NET "JD<1>" LOC = "P59"; # Bank = 2, Pin name = IO_L7N_2/M0/GCLK3,       Sch name = JD-2
+ # NET "JD<2>" LOC = "P74"; # Bank = 1, Pin name = IO_L1P_1/A16,            Sch name = JD-3
+ # NET "JD<3>" LOC = "P58"; # Bank = 2, Pin name = IO_L7P_2/M1/GCLK2,       Sch name = JD-4

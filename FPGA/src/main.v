@@ -48,17 +48,21 @@ module main(
 );
 parameter DATA_BLOCKS = 4;
 parameter _WIDTH      = 24;
+parameter MEMBUFLEFT  = 79;
+// parameter MEMBUFLEFT  = 119;
 
-reg lat_i2s_wclk = 0;
-reg [DATA_BLOCKS*2-1:0] data_count = 0;
-reg [_WIDTH - 1:0] i2s_data_mux = 0;
-reg i2s_mux_valid = 0;
-
-reg  [7:0]        data_id    = 0;
-reg  [_WIDTH-1:0] audio_data = 0;
-
-reg [10:0] overflow_lat, eof_lat = 0;
-reg overflow_LED, eof_LED        = 0;
+reg [MEMBUFLEFT:0] inputbuf     = 0;
+reg                lat_i2s_wclk = 0;
+reg [7:0]          data_id      = 0;
+reg [_WIDTH-1:0]   audio_data   = 0;
+reg [10:0]         overflow_lat = 0;
+reg [0:0]          eof_lat      = 0;
+reg [0:0]          stmen_lat    = 0;
+reg [10:0]         flagb_lat    = 0;
+reg                overflow_LED = 0;
+reg                eof_LED      = 0;
+reg                stmen_LED    = 0;
+reg                flagb_LED    = 0;
 
 wire [_WIDTH-1:0] channel0L, channel1L, channel2L, channel3L;
 wire [_WIDTH-1:0] channel0R, channel1R, channel2R, channel3R;
@@ -66,13 +70,11 @@ wire detect0L, detect0R, detect1L, detect1R;
 wire adc_clk;
 wire adc_clk_rst;
 wire adc_locked;
-wire dpi_btn;
-wire dpi_ldg;
-wire dpi_led;
 wire mclk_bufg;
 wire i2s_bclk;
 wire i2s_wclk;
 wire zero;
+wire eof;
 
 assign zero = 0;
 assign adc_clk_rst  = 0;
@@ -80,7 +82,7 @@ assign ADC_CLK_OUT  = adc_clk;
 assign I2S_BCLK_OUT = i2s_bclk;
 assign I2S_WCLK_OUT = i2s_wclk;
 
-assign LEDATA = {overflow_LED, eof_LED, zero, zero, detect0L, detect0R, detect1L, detect1R};
+assign LEDATA = {STMEN, eof, overflow_LED, flagb_LED, detect0L, detect0R, detect1L, detect1R};
 
 StreamIOvhd streamIO (
     .IFCLK(USBCLK_IN),  
@@ -96,7 +98,8 @@ StreamIOvhd streamIO (
     .DATAID(data_id), 
     .AUDIO(audio_data),
     .EOF(eof),
-    .OVERFLOW(overflow)
+    .OVERFLOW(overflow),
+	.INPUTBUF(inputbuf)
 );
 
 adc_clock_gen adc_clk_gen_inst (
@@ -151,57 +154,89 @@ I2S_Core i2s_core_inst (
     //.dataR(channel3R)
 // );
 
-// I2S MUX
-// always @(posedge mclk_bufg)
-// begin
-	// if (data_count == 0) begin
-		// i2s_mux_valid <= 1;
-	// end
-	// if (i2s_dataL_rdy) begin
-		// data_count <= data_count + 1;
-		// case (data_count) 
-	      // 0 : i2s_data_mux = channel0L; 
-	      // 1 : i2s_data_mux = channel1L; 
-	      // 2 : i2s_data_mux = channel2L; 
-	      // 3 : i2s_data_mux = channel3L; 
-	      // default : i2s_mux_valid = 0; 
-	    // endcase 
-	// end else if (i2s_dataR_rdy) begin
-		// data_count <= data_count + 1;
-		// case (data_count) 
-	      // 0 : i2s_data_mux = channel0R; 
-	      // 1 : i2s_data_mux = channel1R; 
-	      // 2 : i2s_data_mux = channel2R; 
-	      // 3 : i2s_data_mux = channel3R; 
-	      // default : i2s_mux_valid = 0; 
-	    // endcase 
-	// end else begin
-		// // transition between L/R
-		// data_count <= 0;
-	// end
-// end
-
 always @(posedge i2s_bclk) begin
 	lat_i2s_wclk <= i2s_wclk;
 end
 
-assign i2s_dataL_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 1;
-assign i2s_dataR_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 0;
-reg [1:0] i2s_dataL_rdy_lat;
+// assign i2s_dataL_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 1;
+// assign i2s_dataR_rdy = (lat_i2s_wclk == i2s_wclk) && lat_i2s_wclk == 0;
+reg [2:0] i2s_dataL_rdy_lat;
+reg [2:0] i2s_dataR_rdy_lat;
+
+reg [2:0] latch_wclk = 0;
+reg [2:0] latch_bclk = 0;
+reg [3:0] latch_chL = 0;
+reg [3:0] latch_chR = 0;
+assign i2s_dataL_rdy = latch_chL[3]==1 || latch_chL[2]==1 || latch_chL[1]==1;
+assign i2s_dataR_rdy = latch_chR[3]==1 || latch_chR[2]==1 || latch_chR[1]==1;
+always @(posedge mclk_bufg) begin
+	latch_wclk[0] <= i2s_wclk;
+	latch_wclk[1] <= latch_wclk[0];
+	latch_wclk[2] <= latch_wclk[1];
+	latch_bclk[0] <= i2s_bclk;
+	latch_bclk[1] <= latch_bclk[0];
+	latch_bclk[2] <= latch_bclk[1];
+	if (latch_wclk == 3'b011) begin // WCLK rising edge
+		latch_chL[0] <= 1;
+	end else if (latch_wclk == 3'b100) begin
+		latch_chR[0] <= 1;
+	end
+	if (latch_bclk == 3'b011) begin // BCLK rising edge
+		latch_chL[0] <= 0;
+		latch_chL[1] <= latch_chL[0];
+		latch_chL[2] <= latch_chL[1];
+		latch_chL[3] <= latch_chL[2];
+		latch_chR[0] <= 0;
+		latch_chR[1] <= latch_chR[0];
+		latch_chR[2] <= latch_chR[1];
+		latch_chR[3] <= latch_chR[2];
+	end
+end
 
 //Transfer to USB clock before memory
+reg [7 :0] buftest  = 8'h00;
+reg [15:0] buftest1 = 16'h8000; // low
+reg [15:0] buftest2 = 16'hF000; // mid-low
+reg [15:0] buftest3 = 16'h0000; // mid-high
+reg [15:0] buftest4 = 16'h7000; // high
+reg [31:0] Rbuffer  = 0;//16bit
+// reg [47:0] Rbuffer  = 0;//24bit
 always @(posedge USBCLK_IN) begin
 	i2s_dataL_rdy_lat[0] <= i2s_dataL_rdy;
 	i2s_dataL_rdy_lat[1] <= i2s_dataL_rdy_lat[0];
-	if (i2s_dataL_rdy_lat[1] == 0 && i2s_dataL_rdy_lat[0] == 1) begin
-		data_id    <= data_id + 1;
-		audio_data <= channel1L;
+	i2s_dataL_rdy_lat[2] <= i2s_dataL_rdy_lat[1];
+	i2s_dataR_rdy_lat[0] <= i2s_dataR_rdy;
+	i2s_dataR_rdy_lat[1] <= i2s_dataR_rdy_lat[0];
+	i2s_dataR_rdy_lat[2] <= i2s_dataR_rdy_lat[1];
+	// if (i2s_dataL_rdy_lat == 3'b011 || i2s_dataR_rdy_lat == 3'b011) begin//L & R channels
+	if (i2s_dataL_rdy_lat == 3'b011)begin // L channels only
+		data_id[0]    <= ~data_id[0];
+		// buftest1[11:0] <= buftest1[11:0]+1;
+		// buftest2[11:0] <= buftest2[11:0]+1;
+		// buftest3[11:0] <= buftest3[11:0]+1;
+		// buftest4[11:0] <= buftest4[11:0]+1;
+	end else if (i2s_dataL_rdy_lat[1:0] == 2'b01) begin
+		// audio_data <= channel1L;
+		// inputbuf[MEMBUFLEFT:MEMBUFLEFT-15]    <= channel0L[23:8];
+		// inputbuf[MEMBUFLEFT-16:MEMBUFLEFT-31] <= channel1L[23:8];
+		// inputbuf    <= {16'h0000, buftest1, buftest2, inputbuf[MEMBUFLEFT : 48]};
+		inputbuf    <= {16'h0000, channel0L[23:8], channel1L[23:8], Rbuffer};//16bit audio
+		// inputbuf    <= {24'h000000, channel0L, channel1L, Rbuffer};//24bit audio
+	end else if (i2s_dataR_rdy_lat[1:0] == 2'b01) begin
+		// audio_data <= channel1R;
+		// inputbuf[MEMBUFLEFT:MEMBUFLEFT-16]    <= channel0R[23:8];
+		// inputbuf[MEMBUFLEFT-17:MEMBUFLEFT-32] <= channel1R[23:8];
+		// Rbuffer    <= {buftest3, buftest4};
+		Rbuffer    <= {channel0R[23:8], channel1R[23:8]}; //16bit audio
+		// Rbuffer    <= {channel0R, channel1R}; //24bit audio
+		// inputbuf[MEMBUFLEFT:MEMBUFLEFT-15]    <= buftest3;
+		// inputbuf[MEMBUFLEFT-16:MEMBUFLEFT-31] <= buftest4;
 	end
 end
 
 //Memory LEDS
 always @(posedge USBCLK_IN) begin
-   if (overflow == 1) begin
+   if (overflow == 1 && STMEN == 0) begin
       overflow_lat <= 1;
    end else if (overflow_lat != 0) begin
       overflow_lat <= overflow_lat + 1;
@@ -214,6 +249,20 @@ always @(posedge USBCLK_IN) begin
       eof_lat <= eof_lat + 1;
    end
    eof_LED <= (eof_lat != 0);
+   
+   if (STMEN == 1) begin
+      stmen_lat <= 1;
+   end else if (stmen_lat != 0) begin
+      stmen_lat <= stmen_lat + 1;
+   end
+   stmen_LED <= (stmen_lat != 0);
+   
+   if (overflow == 1 && STMEN == 1) begin
+      flagb_lat <= 1;
+   end else if (flagb_lat != 0) begin
+      flagb_lat <= flagb_lat + 1;
+   end
+   flagb_LED <= (flagb_lat != 0);
 end
 
 endmodule

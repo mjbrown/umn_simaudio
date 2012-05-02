@@ -26,6 +26,8 @@ Port (
     USBDB    : inout STD_LOGIC_VECTOR (7 downto 0);
     DATAID   : in    STD_LOGIC_VECTOR(7 downto 0);
     AUDIO    : in    STD_LOGIC_VECTOR(23 downto 0);
+	INPUTBUF : in    STD_LOGIC_VECTOR(79 downto 0);
+	-- INPUTBUF : in    STD_LOGIC_VECTOR(119 downto 0);
     EOF      : out   STD_LOGIC;
     OVERFLOW : out   STD_LOGIC
 );
@@ -65,9 +67,11 @@ architecture Behavioral of StreamIOvhd is
         -- DOWNDATA : IN std_logic_vector(7 downto 0);
         DATAID   : IN std_logic_vector(7 downto 0);
         AUDIO    : IN std_logic_vector(23 downto 0);
-        UPRD     : IN std_logic;          
-        -- DOWNBSY  : OUT std_logic;
-        -- DOWNACK  : OUT std_logic;
+        UPRD     : IN std_logic;   
+		INPUTBUF : IN std_logic_vector(79 downto 0);
+		-- INPUTBUF : IN std_logic_vector(119 downto 0);
+        DOWNBSY  : OUT std_logic;
+        DOWNACK  : OUT std_logic;
         UPBSY    : OUT std_logic;
         UPACK    : OUT std_logic;
         UPDATA   : OUT std_logic_vector(7 downto 0);
@@ -113,9 +117,9 @@ begin
     MemoryInst: Memory PORT MAP(
         IFCLK    => IFCLK,
         RST      => STMEN,
-        -- DOWNBSY  => downbsy,
+        DOWNBSY  => downbsy,
         -- DOWNWR   => downwr,
-        -- DOWNACK  => downack,
+        DOWNACK  => downack,
         -- DOWNDATA => downdata,
         UPBSY    => upbsy,
         UPRD     => uprd,
@@ -124,7 +128,8 @@ begin
         DATAID   => DATAID,
         AUDIO    => AUDIO,
         EOF      => EOF,
-        OVERFLOW => OVERFLOW
+        OVERFLOW => OVERFLOW,
+		INPUTBUF => INPUTBUF
     );
 
 end Behavioral;
